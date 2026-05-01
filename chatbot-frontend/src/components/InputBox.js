@@ -15,7 +15,7 @@ const InputBox = ({ sendMessage }) => {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Type a message..."
+        placeholder="Ask anything..."
       />
       <button onClick={handleSend}>Send</button>
     </div>

@@ -24,3 +24,4 @@ mysql> CREATE TABLE chat_history (
     ->     message_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ->     FOREIGN KEY (conversation_id) REFERENCES conversations(id)
     -> );   
+    
