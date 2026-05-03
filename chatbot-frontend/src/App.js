@@ -10,12 +10,16 @@ function App() {
   const [password, setPassword] = useState("");
 
   const [isSignup, setIsSignup] = useState(false);
+  const [userId, setUserId] = useState(null);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-
+  const [user, setUser] = useState(
+  JSON.parse(localStorage.getItem("user")) || null
+  );
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [theme, setTheme] = useState(
   localStorage.getItem("theme") || "system"
 );
@@ -26,7 +30,8 @@ function App() {
 );
  const chatEndRef = useRef(null);
  const [loading, setLoading] = useState(false);
-
+ 
+ const [isSidebarOpen, setIsSidebarOpen] = useState(true);
  const [activeMenu, setActiveMenu] = useState(null);
  const [editingChatId, setEditingChatId] = useState(null);
  const [newTitle, setNewTitle] = useState("");
@@ -56,6 +61,18 @@ useEffect(() => {
     behavior: "smooth"
   });
 }, [messages]);
+
+// user id 
+useEffect(() => {
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUserId(payload.user_id);
+    } catch (e) {
+      console.log("Invalid token");
+    }
+  }
+}, [token]);
 
   const applyTheme = (mode) => {
     if (mode === "dark") {
@@ -89,7 +106,9 @@ useEffect(() => {
 
     if (data.token) {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       setToken(data.token);
+      setUser(data.user);
     } else {
       alert("Invalid Login");
     }
@@ -221,12 +240,19 @@ useEffect(() => {
   try {
     if (!window.confirm("Delete this chat?")) return;
 
-    await fetch(`${API}/delete-conversation/${id}`, {
+    const res = await fetch(`${API}/delete-conversation/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Delete failed");
+      return;
+    }
 
     setConversations((prev) =>
       prev.filter((chat) => chat.id !== id)
@@ -238,18 +264,23 @@ useEffect(() => {
       localStorage.removeItem("conversationId");
     }
 
+    setActiveMenu(null);
+
   } catch (error) {
     console.log(error);
   }
 };
-
 
   // SEND MESSAGE
   const sendMessage = async () => {
   console.log("conversationId:", conversationId);
   console.log("token:", token);
 
-  if (!input.trim() || !conversationId || loading) return;
+  if (!input.trim() || loading) return;
+    let currentConversationId = conversationId;
+  if (!conversationId) {
+  await newChat();  // create chat automatically
+  }
 
   const userMsg = { role: "user", text: input };
   setMessages((prev) => [...prev, userMsg]);
@@ -330,6 +361,11 @@ useEffect(() => {
 
 //RENAME CHAT
 const renameChat = async (id) => {
+  if (!newTitle.trim()) {
+    setEditingChatId(null);
+    return;
+  }
+
   try {
     await fetch(`${API}/rename-conversation/${id}`, {
       method: "PUT",
@@ -354,20 +390,53 @@ const renameChat = async (id) => {
 };
 
 //PIN CHAT
+const pinChat = async (id, currentStatus) => {
+  try {
+    const newStatus = !currentStatus;
 
-const pinChat = (id) => {
-  setConversations((prev) => {
-    const selected = prev.find((c) => c.id === id);
-    const rest = prev.filter((c) => c.id !== id);
-    return [selected, ...rest]; // move to top
-  });
+    console.log("Pin toggle:", id, newStatus); // 🔍 debug
+
+    const res = await fetch(`${API}/pin-conversation/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        is_pinned: newStatus
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Pin failed");
+      return;
+    }
+
+    // ✅ update UI + keep order
+    setConversations((prev) => {
+      const updated = prev.map((chat) =>
+        chat.id === id
+          ? { ...chat, is_pinned: newStatus }
+          : chat
+      );
+
+      return updated.sort((a, b) => b.is_pinned - a.is_pinned);
+    });
+
+  } catch (error) {
+    console.log("PIN ERROR:", error);
+  }
 };
 
   // LOGOUT
   const logout = () => {
     localStorage.removeItem("token");
      localStorage.removeItem("conversationId"); 
+     localStorage.removeItem("user");  
     setToken("");
+    setUser(null);
     setMessages([]);
     setConversations([]);
   };
@@ -435,14 +504,24 @@ const pinChat = (id) => {
   return (
     <div className="app">
 
-      <div className="sidebar">
+      <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
         <h2>🤖 ChatBot</h2>
 
         <button onClick={newChat}>+ New Chat</button>
+        <input
+          type="text"
+          placeholder="Search chats..."
+          className="search-input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
         <div className="chat-history">
           {Array.isArray(conversations) &&
-          conversations.map((chat) => (
+          conversations.filter((chat) =>
+           chat.title.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map((chat) => (
           <div
            key={chat.id}
            className={`chat-item ${chat.id == conversationId ? "active" : ""}`}
@@ -457,6 +536,11 @@ const pinChat = (id) => {
             renameChat(chat.id);
           }
         }}
+        onBlur={() => {
+          if(editingChatId === chat.id){
+            renameChat(chat.id)
+          }
+        }}   // ✅ CLICK OUTSIDE FIX
         autoFocus
       />
     ) : (
@@ -500,7 +584,7 @@ const pinChat = (id) => {
 
           <div
             className="dropdown-item"
-            onClick={() => pinChat(chat.id)}
+            onClick={() => pinChat(chat.id, chat.is_pinned)}
           >
             Pin
           </div>
@@ -531,7 +615,18 @@ const pinChat = (id) => {
       <div className="chat-section">
 
         <div className="chat-header">
+          <button
+            className="toggle-btn"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            ☰
+          </button>
           AI Chatbot
+          {user && (
+             <div className="user-info">
+             👤 {user.name}
+             </div>
+          )}
         </div>
 
         <div className="chat-box">

@@ -103,8 +103,13 @@ def login():
             )
 
             return jsonify({
-                "message": "Login successful",
-                "token": token
+             "message": "Login successful",
+             "token": token,
+             "user": {
+               "id": user["id"],
+               "name": user["first_name"] + " " + user["last_name"],
+               "email": user["email"]
+             }
             })
 
         return jsonify({
@@ -208,7 +213,7 @@ def get_conversations():
             """
             SELECT * FROM conversations
             WHERE user_id=%s
-            ORDER BY id DESC
+            ORDER BY is_pinned DESC, id DESC
             """,
             (user_id,)
         )
@@ -222,39 +227,32 @@ def get_conversations():
 
     except Exception as e:
         return jsonify({"error": str(e)})
-
+    
 # =====================================
-# DELETE CONVERSATION
-# =====================================    
-
-@app.route("/delete-message/<int:msg_id>", methods=["DELETE"])
-def delete_message(msg_id):
+# PIN / UNPIN CHAT
+# =====================================
+@app.route("/pin-conversation/<int:chat_id>", methods=["PUT"])
+def pin_conversation(chat_id):
     try:
         token = request.headers.get("Authorization").split(" ")[1]
-
         decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         user_id = decoded["user_id"]
 
+        data = request.json or {}
+        is_pinned = data.get("is_pinned", False)
+
+        print("PIN UPDATE:", chat_id, is_pinned)
+
         conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor()
 
-        # verify message belongs to user
-        cursor.execute("""
-            SELECT ch.id
-            FROM chat_history ch
-            JOIN conversations c ON ch.conversation_id = c.id
-            WHERE ch.id=%s AND c.user_id=%s
-        """, (msg_id, user_id))
-
-        msg = cursor.fetchone()
-
-        if not msg:
-            return jsonify({"error": "Unauthorized"}), 403
-
-        # delete message
         cursor.execute(
-            "DELETE FROM chat_history WHERE id=%s",
-            (msg_id,)
+            """
+            UPDATE conversations
+            SET is_pinned=%s
+            WHERE id=%s AND user_id=%s
+            """,
+            (is_pinned, chat_id, user_id)
         )
 
         conn.commit()
@@ -262,10 +260,57 @@ def delete_message(msg_id):
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Message deleted"})
+        return jsonify({"message": "Updated"})
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500 
+
+
+# =====================================
+# DELETE CONVERSATION
+# =====================================
+@app.route("/delete-conversation/<int:conversation_id>", methods=["DELETE"])
+def delete_conversation(conversation_id):
+    try:
+        token = request.headers.get("Authorization").split(" ")[1]
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded["user_id"]
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 🔒 Check ownership
+        cursor.execute(
+            "SELECT id FROM conversations WHERE id=%s AND user_id=%s",
+            (conversation_id, user_id)
+        )
+        chat = cursor.fetchone()
+
+        if not chat:
+            return jsonify({"error": "Unauthorized"}), 403
+
+        # 🔥 DELETE CHILD FIRST (IMPORTANT)
+        cursor.execute(
+            "DELETE FROM chat_history WHERE conversation_id=%s",
+            (conversation_id,)
+        )
+
+        # 🔥 DELETE CONVERSATION
+        cursor.execute(
+            "DELETE FROM conversations WHERE id=%s",
+            (conversation_id,)
+        )
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Conversation deleted"})
+
+    except Exception as e:
+        print("DELETE ERROR:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 
