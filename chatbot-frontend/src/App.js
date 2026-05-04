@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import ReactMarkdown from "react-markdown";
+
 import "./App.css";
 const API = "http://127.0.0.1:5000";
 
@@ -10,7 +12,7 @@ function App() {
   const [password, setPassword] = useState("");
 
   const [isSignup, setIsSignup] = useState(false);
-  const [userId, setUserId] = useState(null);
+  
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -41,40 +43,13 @@ function App() {
   localStorage.setItem("theme", theme);
 }, [theme]);
 
-  // eslint-disable-next-line
-useEffect(() => {
-  if (token) {
-    loadConversations();
-    setConversationId(null);
-  }
-}, [token]);
-
- // eslint-disable-next-line
-useEffect(() => {
-  if (token && conversationId) {
-    openChat(conversationId);
-  }
-}, [token]);
-
-  useEffect(() => {
+   useEffect(() => {
   chatEndRef.current?.scrollIntoView({
     behavior: "smooth"
   });
 }, [messages]);
 
-// user id 
-useEffect(() => {
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserId(payload.user_id);
-    } catch (e) {
-      console.log("Invalid token");
-    }
-  }
-}, [token]);
-
-  const applyTheme = (mode) => {
+const applyTheme = (mode) => {
     if (mode === "dark") {
       document.body.className = "dark";
     } else if (mode === "light") {
@@ -149,7 +124,8 @@ useEffect(() => {
 
 
   // LOAD ALL CHATS
-  const loadConversations = async () => {
+  
+  const loadConversations = useCallback(async () => {
     try {
       const response = await fetch("http://127.0.0.1:5000/conversations", {
         headers: {
@@ -170,7 +146,14 @@ useEffect(() => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+  if (token) {
+    loadConversations();
+    setConversationId(null);
+  }
+}, [token,loadConversations]);
 
   // NEW CHAT
   const newChat = async () => {
@@ -199,7 +182,7 @@ useEffect(() => {
   };
 
   // LOAD OLD CHAT
-  const openChat = async (id) => {
+ const openChat = useCallback(async (id) => {
   setConversationId(id);
   localStorage.setItem("conversationId", id);
 
@@ -234,7 +217,14 @@ useEffect(() => {
   } catch (error) {
     console.log(error);
   }
-};
+}, [token]);
+
+useEffect(() => {
+  if (token && conversationId) {
+    openChat(conversationId);
+  }
+}, [token, conversationId, openChat]);
+
   //DELETE CHAT
   const deleteChat = async (id) => {
   try {
@@ -272,20 +262,22 @@ useEffect(() => {
 };
 
   // SEND MESSAGE
-  const sendMessage = async () => {
+  const sendMessage = async (voiceText = null, isVoice = false) => {
   console.log("conversationId:", conversationId);
   console.log("token:", token);
 
+  const messageText = voiceText || input;
+
   if (!input.trim() || loading) return;
-    let currentConversationId = conversationId;
+    
   if (!conversationId) {
   await newChat();  // create chat automatically
   }
 
-  const userMsg = { role: "user", text: input };
+  const userMsg = { role: "user", text: messageText }; //changes
   setMessages((prev) => [...prev, userMsg]);
 
-  const question = input;
+  const question = messageText;
   setInput("");
   setLoading(true);
 
@@ -524,7 +516,7 @@ const pinChat = async (id, currentStatus) => {
           .map((chat) => (
           <div
            key={chat.id}
-           className={`chat-item ${chat.id == conversationId ? "active" : ""}`}
+           className={`chat-item ${chat.id === conversationId ? "active" : ""}`}
           >
     {/* CHAT TITLE / EDIT MODE */}
     {editingChatId === chat.id ? (
@@ -680,6 +672,7 @@ const pinChat = async (id, currentStatus) => {
               {loading ? "..." : ">"}
               &gt;
             </button>
+            
 
           </div>
         </div>
