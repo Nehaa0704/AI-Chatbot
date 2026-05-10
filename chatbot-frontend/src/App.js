@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useCallback } from "react";
+import remarkGfm from "remark-gfm";
+import VoiceAssistant from "./components/VoiceAssistant";
 import ReactMarkdown from "react-markdown";
+
 
 import "./App.css";
 const API = "http://127.0.0.1:5000";
@@ -260,6 +263,14 @@ useEffect(() => {
     console.log(error);
   }
 };
+// voice
+const speak = (text) => {
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  utterance.lang = "en-IN";
+
+  speechSynthesis.speak(utterance);
+};
 
   // SEND MESSAGE
   const sendMessage = async (voiceText = null, isVoice = false) => {
@@ -268,7 +279,7 @@ useEffect(() => {
 
   const messageText = voiceText || input;
 
-  if (!input.trim() || loading) return;
+  if (!messageText || !messageText.trim() || loading) return;
     
   if (!conversationId) {
   await newChat();  // create chat automatically
@@ -314,6 +325,12 @@ useEffect(() => {
     };
 
     setMessages((prev) => [...prev, botMsg]);
+    
+    // 🔊 Speak only for voice input
+     if (isVoice) {
+       speak(data.reply);
+     }
+
 
     loadConversations();
   } catch (error) {
@@ -633,9 +650,29 @@ const pinChat = async (id, currentStatus) => {
                 }}
              >
                 {msg.role === "bot" ? (
-                  <ReactMarkdown>
-                    {msg.text}
-                  </ReactMarkdown>
+                  <ReactMarkdown
+                     remarkPlugins={[remarkGfm]}
+                    components={{
+                     a: ({ node, ...props }) => (
+                        <a
+                           {...props}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           style={{ 
+                             color: "#2563eb",
+                             textDecoration: "underline"
+                           }}
+                          >
+                            {props.children}
+                          </a> 
+                        
+                      )  
+                    }} 
+                  >
+                     {typeof msg.text === "string"
+                     ? msg.text
+                      : JSON.stringify(msg.text)}
+                  </ReactMarkdown>     
                 ) : (
                   msg.text
                 )}
@@ -672,6 +709,12 @@ const pinChat = async (id, currentStatus) => {
               {loading ? "..." : ">"}
               &gt;
             </button>
+            </div>
+            <div className="mic-wrapper">
+            {/* 🎤 Voice Assistant Button */}
+              <VoiceAssistant
+                 onVoiceInput={(text) => sendMessage(text, true)}
+              />
             
 
           </div>

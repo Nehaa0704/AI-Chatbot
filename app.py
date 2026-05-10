@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
+from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 from db import get_db_connection
@@ -11,6 +12,7 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+bcrypt = Bcrypt(app)
 
 SECRET_KEY = "mysecretkey"
 
@@ -31,6 +33,7 @@ def register():
         last_name = data.get("last_name")
         email = data.get("email")
         password = data.get("password")
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -53,7 +56,7 @@ def register():
             (first_name, last_name, email, password)
             VALUES (%s, %s, %s, %s)
             """,
-            (first_name, last_name, email, password)
+            (first_name, last_name, email, hashed_password)
         )
 
         conn.commit()
@@ -83,8 +86,8 @@ def login():
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute(
-            "SELECT * FROM users WHERE email=%s AND password=%s",
-            (email, password)
+            "SELECT * FROM users WHERE email=%s",
+            (email,)
         )
 
         user = cursor.fetchone()
@@ -92,7 +95,7 @@ def login():
         cursor.close()
         conn.close()
 
-        if user:
+        if user and bcrypt.check_password_hash(user["password"], password):
             token = jwt.encode(
                 {
                     "user_id": user["id"],
