@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useCallback } from "react";
 import remarkGfm from "remark-gfm";
+
 import VoiceAssistant from "./components/VoiceAssistant";
 import ReactMarkdown from "react-markdown";
 
@@ -10,7 +11,7 @@ const API = "http://127.0.0.1:5000";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -264,8 +265,15 @@ useEffect(() => {
   }
 };
 // voice
+const cleanTextForSpeech = (text) => {
+  return text
+    .replace(/[.,!?;:]/g, "")   // remove punctuation
+    .replace(/\s+/g, " ")       // remove extra spaces
+    .trim();
+};
 const speak = (text) => {
-  const utterance = new SpeechSynthesisUtterance(text);
+   const cleanedText = cleanTextForSpeech(text);
+  const utterance =  new SpeechSynthesisUtterance(cleanedText);
 
   utterance.lang = "en-IN";
 
@@ -343,31 +351,7 @@ const speak = (text) => {
 
   setLoading(false);
 };
-  // DELETE
-
-  const deleteMessage = async (msgId) => {
-  try {
-    console.log("Deleting message:", msgId);
-    if (!window.confirm("Delete this message?")) return;
-    const res = await fetch(`${API}/delete-message/${msgId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    if (!res.ok) throw new Error("Delete failed");
-
-     setMessages((prev) =>
-  prev.filter((msg) => String(msg._id) !== String(msgId))
-
-    );
-
-  } catch (error) {
-    console.log(error);
-  }
-};
-
+  
 //RENAME CHAT
 const renameChat = async (id) => {
   if (!newTitle.trim()) {
@@ -451,6 +435,8 @@ const pinChat = async (id, currentStatus) => {
   };
 
   // LOGIN PAGE
+  
+
   if (!token) {
   return (
     <div className="login-page">
@@ -514,7 +500,7 @@ const pinChat = async (id, currentStatus) => {
     <div className="app">
 
       <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
-        <h2>🤖 ChatBot</h2>
+        <h2>🤖 Botmania.AI</h2>
 
         <button onClick={newChat}>+ New Chat</button>
         <input
@@ -643,11 +629,7 @@ const pinChat = async (id, currentStatus) => {
              <div
                 key={index}
                 className={msg.role === "user" ? "user-msg" : "bot-msg"}
-                onClick={() => {
-                  if (window.confirm("Delete this message?")) {
-                    deleteMessage(msg.id);
-                  }
-                }}
+                
              >
                 {msg.role === "bot" ? (
                   <ReactMarkdown
@@ -704,20 +686,19 @@ const pinChat = async (id, currentStatus) => {
                 }
               }}
             />
+            <div className="mic-wrapper">
+            {/* 🎤 Voice Assistant Button */}
+              <VoiceAssistant
+                 onVoiceInput={(text) => sendMessage(text, true)}
+              />
+          </div>
 
             <button onClick={sendMessage} disabled = {loading}>
               {loading ? "..." : ">"}
               &gt;
             </button>
             </div>
-            <div className="mic-wrapper">
-            {/* 🎤 Voice Assistant Button */}
-              <VoiceAssistant
-                 onVoiceInput={(text) => sendMessage(text, true)}
-              />
             
-
-          </div>
         </div>
 
       </div>

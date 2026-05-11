@@ -486,3 +486,25 @@ body.dark.toggle-btn{
 .search-input::placeholder {
   color: #888;
 }
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding-right: 90px;
+}
+
+.mic-wrapper {
+  position: absolute;
+  right: 55px;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper button {
+  position: absolute;
+  right: 10px;
+}
