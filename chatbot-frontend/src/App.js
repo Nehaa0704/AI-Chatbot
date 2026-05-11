@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useCallback } from "react";
 import remarkGfm from "remark-gfm";
-
+import LandingPage from "./components/LandingPage";
 import VoiceAssistant from "./components/VoiceAssistant";
 import ReactMarkdown from "react-markdown";
 
@@ -11,7 +11,7 @@ const API = "http://127.0.0.1:5000";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-  
+  const [showLanding, setShowLanding] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -435,7 +435,13 @@ const pinChat = async (id, currentStatus) => {
   };
 
   // LOGIN PAGE
-  
+  if (showLanding) {
+  return (
+    <LandingPage
+      onStart={() => setShowLanding(false)}
+    />
+  );
+}
 
   if (!token) {
   return (
