@@ -268,7 +268,7 @@ body.dark {
   width: 100%;
   padding: 12px;
   border: none;
-  background:rgb(38, 26, 205);
+  background:#7b2cff;
   color: white;
   border-radius: 10px;
   cursor: pointer;
@@ -349,7 +349,7 @@ body.dark {
 
 .user-msg {
   margin-left: auto;
-  background: rgb(38, 26, 205);
+  background: #7b2cff;
   color: rgb(255, 255, 255);
 }
 
@@ -389,7 +389,7 @@ body.dark {
   top: 50%;
   transform: translateY(-50%);
   border: none;
-  background: rgb(38, 26, 205);
+  background: #7b2cff;
   color: white;
   width: 38px;
   height: 38px;
