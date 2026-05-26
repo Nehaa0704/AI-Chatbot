@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import LandingPage from "./components/LandingPage";
 import VoiceAssistant from "./components/VoiceAssistant";
 import ReactMarkdown from "react-markdown";
+import { FaArrowLeft } from "react-icons/fa";
 
 
 import "./App.css";
@@ -17,7 +18,7 @@ function App() {
 
   const [isSignup, setIsSignup] = useState(false);
   
-
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [user, setUser] = useState(
@@ -285,7 +286,7 @@ const speak = (text) => {
   console.log("conversationId:", conversationId);
   console.log("token:", token);
 
-  const messageText = voiceText || input;
+  const messageText = String(voiceText || input);
 
   if (!messageText || !messageText.trim() || loading) return;
     
@@ -447,7 +448,12 @@ const pinChat = async (id, currentStatus) => {
   return (
     <div className="login-page">
       <div className="login-box">
-
+        <div
+         className="back-home"
+         onClick={() => setShowLanding(true)}
+        >
+         <FaArrowLeft />
+      </div>
         <h1>{isSignup ? "Sign Up" : "Login"}</h1>
 
         {isSignup && (
@@ -695,13 +701,20 @@ const pinChat = async (id, currentStatus) => {
             <div className="mic-wrapper">
             {/* 🎤 Voice Assistant Button */}
               <VoiceAssistant
-                 onVoiceInput={(text) => sendMessage(text, true)}
+                 onVoiceInput={(text) => {
+                      if (typeof text === "string") {
+                       sendMessage(text, true)
+                      }
+                    }}   
               />
           </div>
 
-            <button onClick={sendMessage} disabled = {loading}>
-              {loading ? "..." : ">"}
-              &gt;
+            <button
+              onClick={() => sendMessage()}
+              disabled={loading}
+            >
+              {loading ? "..." : "➤"}
+              
             </button>
             </div>
             

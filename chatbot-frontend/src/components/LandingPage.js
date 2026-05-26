@@ -233,7 +233,7 @@ const LandingPage = ({ onStart }) => {
 
             <h3>Project Team</h3>
 
-            <p classname = "project-title">
+            <p className = "project-title">
               Final Year Project —
               AI Chatbot with Voice Assistant
             </p>

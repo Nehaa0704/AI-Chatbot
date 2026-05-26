@@ -31,50 +31,214 @@ body.dark {
 
 /* ---------- LOGIN PAGE ---------- */
 
+/* ---------- LOGIN PAGE ---------- */
+
 .login-page {
   height: 100vh;
-  background: var(--bg);
-  color: var(--text);
+
   display: flex;
   justify-content: center;
   align-items: center;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at top right,
+    rgba(195,0,255,0.25),
+    transparent 30%),
+
+    radial-gradient(circle at bottom left,
+    rgba(255,0,170,0.15),
+    transparent 30%),
+
+    #05010f;
 }
 
-.login-box {
-  width: 360px;
-  background: var(--card);
-  padding: 32px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 0 20px rgba(0,0,0,0.08);
+/* Glow Effect */
+
+.login-page::before {
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  background: rgba(208,0,255,0.15);
+
+  filter: blur(120px);
+
+  z-index: 0;
 }
+
+/* Login Card */
+
+.login-box {
+  width: 420px;
+
+  padding: 45px;
+
+  border-radius: 30px;
+
+  position: relative;
+  z-index: 1;
+
+  background: rgba(255,255,255,0.04);
+
+  border:
+    1px solid rgba(255,255,255,0.08);
+
+  backdrop-filter: blur(15px);
+
+  box-shadow:
+    0 0 40px rgba(208,0,255,0.15);
+
+  animation: fadeUp 0.6s ease;
+}
+
+/* Badge */
+
+.login-badge {
+  display: inline-block;
+
+  padding: 8px 16px;
+
+  border-radius: 30px;
+
+  background: rgba(208,0,255,0.1);
+
+  border:
+    1px solid rgba(208,0,255,0.4);
+
+  color: #d000ff;
+
+  font-size: 13px;
+
+  margin-bottom: 20px;
+}
+
+/* Title */
 
 .login-box h1 {
   text-align: center;
-  margin-bottom: 22px;
+
+  font-size: 2.5rem;
+
+  margin-bottom: 10px;
 }
 
-.login-box input,
-.login-box button {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 14px;
-  border-radius: 10px;
+/* Subtitle */
+
+.login-subtitle {
+  text-align: center;
+
+  color: #bbb;
+
+  margin-bottom: 30px;
+
+  line-height: 1.7;
 }
+
+/* Inputs */
 
 .login-box input {
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
+  width: 100%;
+
+  padding: 16px;
+
+  margin-bottom: 18px;
+
+  border-radius: 16px;
+
+  border:
+    1px solid rgba(255,255,255,0.08);
+
+  background:
+    rgba(255,255,255,0.05);
+
+  color: white;
+
+  outline: none;
+
+  font-size: 15px;
+
+  transition: 0.3s;
 }
 
+.login-box input:focus {
+
+  border: 1px solid #d000ff;
+
+  box-shadow:
+    0 0 15px rgba(208,0,255,0.3);
+}
+
+/* Button */
+
 .login-box button {
+  width: 100%;
+
+  padding: 16px;
+
   border: none;
-  background: var(--primary);
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(45deg, #d000ff, #7b2cff);
+
   color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+
+  box-shadow:
+    0 0 20px rgba(208,0,255,0.3);
+}
+
+.login-box button:hover {
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 0 30px rgba(208,0,255,0.5);
+}
+
+/* Signup Text */
+
+.login-box p {
+  margin-top: 20px;
+
+  text-align: center;
+
+  color: #bbb;
+}
+
+.login-box span {
+  color: #d000ff;
+
   cursor: pointer;
 }
 
+/* Animation */
+
+@keyframes fadeUp {
+
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* ---------- APP ---------- */
 
 .app {
