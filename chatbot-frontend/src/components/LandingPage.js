@@ -51,7 +51,7 @@ const LandingPage = ({ onStart }) => {
 
           <h1>
             Your AI <br />
-            Voice <span>Assistant</span>
+             <span>Assistant</span>
           </h1>
 
           <p>
