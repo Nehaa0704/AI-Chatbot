@@ -12,7 +12,9 @@ const API = "http://127.0.0.1:5000";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-  const [showLanding, setShowLanding] = useState(true);
+ const [showLanding, setShowLanding] = useState(
+  !localStorage.getItem("visited")
+);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -42,6 +44,7 @@ function App() {
  const [activeMenu, setActiveMenu] = useState(null);
  const [editingChatId, setEditingChatId] = useState(null);
  const [newTitle, setNewTitle] = useState("");
+ 
 
   useEffect(() => {
   applyTheme(theme);
@@ -53,6 +56,12 @@ function App() {
     behavior: "smooth"
   });
 }, [messages]);
+
+useEffect(() => {
+  if (token) {
+    setShowLanding(false);
+  }
+}, [token]);
 
 const applyTheme = (mode) => {
     if (mode === "dark") {
@@ -439,7 +448,10 @@ const pinChat = async (id, currentStatus) => {
   if (showLanding) {
   return (
     <LandingPage
-      onStart={() => setShowLanding(false)}
+       onStart={() => {
+    localStorage.setItem("visited", "true");
+    setShowLanding(false);
+  }}
     />
   );
 }
@@ -450,7 +462,10 @@ const pinChat = async (id, currentStatus) => {
       <div className="login-box">
         <div
          className="back-home"
-         onClick={() => setShowLanding(true)}
+         onClick={() => {
+            localStorage.removeItem("visited");
+            setShowLanding(true);
+          }}
         >
          <FaArrowLeft />
       </div>
