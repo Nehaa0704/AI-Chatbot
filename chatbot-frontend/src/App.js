@@ -8,7 +8,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 
 import "./App.css";
-const API = "http://127.0.0.1:5000";
+const API = "https://ai-chatbot-pexf.onrender.com";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
@@ -80,7 +80,7 @@ const applyTheme = (mode) => {
   // LOGIN
   const handleLogin = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:5000/login", {
+    const response = await fetch("https://ai-chatbot-pexf.onrender.com/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -110,7 +110,7 @@ const applyTheme = (mode) => {
   // REGISTER
   const handleRegister = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:5000/register", {
+    const response = await fetch("https://ai-chatbot-pexf.onrender.com/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -141,7 +141,7 @@ const applyTheme = (mode) => {
   
   const loadConversations = useCallback(async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/conversations", {
+      const response = await fetch("https://ai-chatbot-pexf.onrender.com/conversations", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -172,7 +172,7 @@ const applyTheme = (mode) => {
   // NEW CHAT
   const newChat = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/new-chat", {
+      const response = await fetch("https://ai-chatbot-pexf.onrender.com/new-chat", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`
@@ -202,7 +202,7 @@ const applyTheme = (mode) => {
 
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/messages/${id}`,
+      `https://ai-chatbot-pexf.onrender.com/messages/${id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -311,7 +311,7 @@ const speak = (text) => {
   setLoading(true);
 
   try {
-    const response = await fetch("http://127.0.0.1:5000/chat", {
+    const response = await fetch("https://ai-chatbot-pexf.onrender.com/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
