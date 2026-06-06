@@ -14,7 +14,7 @@ app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
 
-SECRET_KEY = "mysecretkey"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # OpenRouter client
 client = OpenAI(

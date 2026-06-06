@@ -254,10 +254,8 @@ const LandingPage = ({ onStart }) => {
                 </div>
 
             </div>
-             <div className="project-details">
-                <p>📧 botmania.ai@gmail.com</p>
-                <p>💻 github.com/botmania-ai</p>
-             </div>
+             
+             
           </div>
         </div>
 

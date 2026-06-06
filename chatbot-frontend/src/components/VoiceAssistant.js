@@ -36,7 +36,7 @@ const VoiceAssistant = ({ onVoiceInput }) => {
 
   return (
     <button onClick={startListening}>
-      {isListening ? "Listening..." : "🎤"}
+      {isListening ? "..." : "🎤"}
     </button>
   );
 };
