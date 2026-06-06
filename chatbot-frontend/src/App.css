@@ -489,9 +489,8 @@ body.dark {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: trans;
-
-  padding: 2px 4pxpx;   /* ⬅️ reduce padding */
+  background: transparent;
+  padding: 2px 4px;   /* ⬅️ reduce padding */
   margin: 1px 0;       /* ⬅️ reduce gap */
   border-radius: 8px;
   font-size: 14px;
@@ -585,11 +584,11 @@ body.dark {
   width: 60px;
 }
 
-Chat section adjusts */
- .chat-section {
+/* Chat section adjusts */
+.chat-section {
   flex: 1;
   transition: all 0.3s ease;
-} */
+} 
 
 /* Toggle button */
 .toggle-btn {
