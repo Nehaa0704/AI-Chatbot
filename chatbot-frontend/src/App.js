@@ -102,10 +102,13 @@ const applyTheme = (mode) => {
       alert("Invalid Login");
     }
 
-  } catch (error) {
-    console.log(error);
+  } catch(error){
+  if(error.response){
+    alert(error.response.data.message);
+  } else {
     alert("Server Error");
   }
+}
 };
   // REGISTER
   const handleRegister = async () => {
