@@ -216,50 +216,51 @@ const LandingPage = ({ onStart }) => {
 
       {/* CONTACT SECTION */}
 
-      <section
-        className="contact-section"
-        id="contact"
-      >
+      <section className="contact-section" id="contact">
+  <h2 className="section-title">
+    Get In Touch
+  </h2>
 
-        <h2 className="section-title">
-          Get In Touch
-        </h2>
+  <div className="contact-container">
+    <div className="contact-info">
+      <h3>Contact Details</h3>
 
-        <div className="contact-container">
+      <div className="contact-item">
+        <p>📧 Email: nehaakri2004@gmail.com</p>
+      </div>
 
-          {/* LEFT */}
+      <div className="contact-item">
+        <p>📱 Phone: +91 XXXXXXXXXX</p>
+      </div>
 
-          <div className="contact-info">
+      <div className="contact-item">
+        <p>
+          🔗 LinkedIn:
+          <a
+            href="https://www.linkedin.com/in/neha-kumari-956a96395"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://www.linkedin.com/in/neha-kumari-956a96395
+          </a>
+        </p>
+      </div>
 
-            <h3>Project Team</h3>
-
-            <p className = "project-title">
-              Final Year Project —
-              AI Chatbot with Voice Assistant
-            </p>
-            <div className="team-members">
-                <div className="member">
-                  <h4>Anshu Kumari</h4>
-                  <p>Frontend & UI development</p>
-                </div>
-                 
-                 <div className="member">
-                  <h4>Neha Kumari</h4>
-                  <p>Backened & Database</p>
-                </div>
-
-                <div className="member">
-                  <h4>Mamta Rani Mahato</h4>
-                  <p>API & Authentication</p>
-                </div>
-
-            </div>
-             
-             
-          </div>
-        </div>
-
-      </section>
+      <div className="contact-item">
+        <p>
+          💻 GitHub:
+          <a
+            href="https://github.com/Nehaa0704/AI-Chatbot.git"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://github.com/Nehaa0704/AI-Chatbot.git
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* FOOTER */}
 
